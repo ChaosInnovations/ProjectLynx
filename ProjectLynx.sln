@@ -3,9 +3,36 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28010.2026
 MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "AVR", "AVR", "{2D2D4931-26F2-4C55-AF48-EE2FB76AD122}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CANPnP Bootloader", "CANPnP Bootloader\CANPnP Bootloader.vcxproj", "{C5F80730-F44F-4478-BDAE-6634EFC2CA88}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Modules", "Modules", "{FE118960-2CCF-490A-BD9C-6221AF833D7A}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "External Keypad", "External Keypad\External Keypad.vcxproj", "{64454041-B824-4FB6-BD82-462C804D35A4}"
+EndProject
 Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x86 = Debug|x86
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.ActiveCfg = Debug|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Debug|x86.Build.0 = Debug|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.ActiveCfg = Release|Win32
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88}.Release|x86.Build.0 = Release|Win32
+		{64454041-B824-4FB6-BD82-462C804D35A4}.Debug|x86.ActiveCfg = Debug|Win32
+		{64454041-B824-4FB6-BD82-462C804D35A4}.Debug|x86.Build.0 = Debug|Win32
+		{64454041-B824-4FB6-BD82-462C804D35A4}.Release|x86.ActiveCfg = Release|Win32
+		{64454041-B824-4FB6-BD82-462C804D35A4}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{C5F80730-F44F-4478-BDAE-6634EFC2CA88} = {2D2D4931-26F2-4C55-AF48-EE2FB76AD122}
+		{FE118960-2CCF-490A-BD9C-6221AF833D7A} = {2D2D4931-26F2-4C55-AF48-EE2FB76AD122}
+		{64454041-B824-4FB6-BD82-462C804D35A4} = {FE118960-2CCF-490A-BD9C-6221AF833D7A}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9B5101FA-F703-4FAB-B267-48725D34019A}
