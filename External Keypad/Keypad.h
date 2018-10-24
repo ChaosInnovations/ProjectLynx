@@ -1,15 +1,9 @@
-// Keypad.h
-
 #ifndef _KEYPAD_h
 #define _KEYPAD_h
-
 #if defined(ARDUINO) && ARDUINO >= 100
 	#include "arduino.h"
 #else
 	#include "WProgram.h"
-#endif
-
-
 #endif
 
 // Key masks
@@ -35,3 +29,21 @@
 #define KEY_END    0x4000
 
 #define keyPressed(state, key) (state&key)==key
+
+class Keypad
+{
+public:
+	uint16_t keyStates = 0;
+
+	explicit Keypad();
+
+	void UpdateStates();
+
+	bool IsKeyPressed(int key);
+	uint16_t GetKeyStates();
+
+private:
+	uint16_t _keyStates;
+};
+
+#endif
