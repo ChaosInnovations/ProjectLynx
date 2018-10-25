@@ -14,6 +14,16 @@
 	#include "WProgram.h"
 #endif
 
+class CANPnP_AVR {
+public:
+	explicit CANPnP_AVR();
+	void RegisterFunction(uint8_t funcNum, void(*funcPtr)(uint8_t, uint8_t*));
+	void UnregisterFunction(uint8_t funcNum);
+	bool FunctionRegistered(uint8_t funcNum);
+	bool CallFunctionIfRegistered(uint8_t funcNum, uint8_t len, uint8_t data[9]);
+private:
+	void(*_functionTable[256])(uint8_t, uint8_t*);
+};
 
 #endif
 

@@ -14,6 +14,10 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CANPnP AVR", "CANPnP AVR\CANPnP AVR.vcxitems", "{BA6575E1-BA63-4F5A-907E-8B9E2A6B7332}"
 EndProject
 Global
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		CANPnP AVR\CANPnP AVR.vcxitems*{64454041-b824-4fb6-bd82-462c804d35a4}*SharedItemsImports = 4
+		CANPnP AVR\CANPnP AVR.vcxitems*{ba6575e1-ba63-4f5a-907e-8b9e2a6b7332}*SharedItemsImports = 9
+	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x86 = Debug|x86
 		Release|x86 = Release|x86
