@@ -15,16 +15,15 @@ CANPnP::CANPnP() {
 	_device_vid = (EEPROM.read(CANPnP_EEPROM_VIDH) << 8) | EEPROM.read(CANPnP_EEPROM_VIDL);
 	_device_pid = (EEPROM.read(CANPnP_EEPROM_PIDH) << 8) | EEPROM.read(CANPnP_EEPROM_PIDL);
 	_device_class = EEPROM.read(CANPnP_EEPROM_CLASS);
+	_device_version = (EEPROM.read(CANPnP_EEPROM_VERH) << 8) | EEPROM.read(CANPnP_EEPROM_VERL);
 	// Initialize peripherals
 	// Initialize device table?
 	// Register builtin functions
 	RegisterFunction(CANPnP_FUNCTION_STATUS, CANPnP::GetStatus);
 	RegisterFunction(CANPnP_FUNCTION_RESET, CANPnP::Reset);
 	// These functions shouldn't be called here. Respond with an error/warning
-	RegisterFunction(CANPnP_FUNCTION_FIRMWARESTART, CANPnP::FirmwareOops);
-	RegisterFunction(CANPnP_FUNCTION_FIRMWAREPREFACE, CANPnP::FirmwareOops);
-	RegisterFunction(CANPnP_FUNCTION_FIRMWAREPAYLOAD, CANPnP::FirmwareOops);
-	RegisterFunction(CANPnP_FUNCTION_FIRMWAREEND, CANPnP::FirmwareOops);
+	RegisterFunction(CANPnP_FUNCTION_PAGESTART, CANPnP::FirmwareOops);
+	RegisterFunction(CANPnP_FUNCTION_PAGEDATA, CANPnP::FirmwareOops);
 }
 
 bool CANPnP::RegisterFunction(uint8_t funcNum, void(*funcPtr)(CANPnP node, uint8_t len, uint64_t)) {
@@ -77,6 +76,11 @@ uint16_t CANPnP::GetPID() {
 
 uint8_t CANPnP::GetClass() {
 	return _device_class;
+}
+
+uint16_t CANPnP::GetVersion()
+{
+	return _device_version;
 }
 
 uint32_t CANPnP::MakeAddress(uint8_t priority, bool heartbeat) {

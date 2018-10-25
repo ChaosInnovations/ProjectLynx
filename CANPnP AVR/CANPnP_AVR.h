@@ -23,14 +23,14 @@
 #define CANPnP_EEPROM_PIDH 0x06
 #define CANPnP_EEPROM_PIDL 0x07
 #define CANPnP_EEPROM_CLASS 0x08
+#define CANPnP_EEPROM_VERH 0x09
+#define CANPnP_EEPROM_VERL 0x0A
 #define CANPnP_HEARTBEAT_PRIORITY 0x04
 
 #define CANPnP_FUNCTION_STATUS 0x00
 #define CANPnP_FUNCTION_RESET 0x01
-#define CANPnP_FUNCTION_FIRMWARESTART 0x02
-#define CANPnP_FUNCTION_FIRMWAREPREFACE 0x03
-#define CANPnP_FUNCTION_FIRMWAREPAYLOAD 0x04
-#define CANPnP_FUNCTION_FIRMWAREEND 0x05
+#define CANPnP_FUNCTION_PAGESTART 0x02
+#define CANPnP_FUNCTION_PAGEDATA 0x03
 
 #define CANPnP_STATUS_CLEAR_FLAGS 0x01
 
@@ -46,6 +46,7 @@ public:
 	uint16_t GetVID();
 	uint16_t GetPID();
 	uint8_t GetClass();
+	uint16_t GetVersion();
 private:
 	// Function Table, up to 256 functions (0:5 reserved)
 	// This takes up lots of space - can it be any smaller?
@@ -56,6 +57,7 @@ private:
 	uint16_t _device_vid;
 	uint16_t _device_pid;
 	uint8_t _device_class;
+	uint16_t _device_version;
 	uint32_t MakeAddress(uint8_t priority, bool heartbeat);
 	void SendHeartbeat();
 	uint64_t _statusFlags;
