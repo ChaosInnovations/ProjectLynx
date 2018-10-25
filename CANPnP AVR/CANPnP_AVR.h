@@ -37,18 +37,17 @@
 class CANPnP {
 public:
 	explicit CANPnP();
-	bool RegisterFunction(uint8_t funcNum, void(*funcPtr)(CANPnP node, uint8_t len, uint8_t*data));
-	//bool RegisterFunction(uint8_t funcNum, void(CANPnP::*funcPtr)(uint8_t len, uint8_t*data));
+	bool RegisterFunction(uint8_t funcNum, void(*funcPtr)(CANPnP node, uint8_t len, uint64_t));
 	bool UnregisterFunction(uint8_t funcNum);
 	bool FunctionRegistered(uint8_t funcNum);
-	bool CallFunctionIfRegistered(uint8_t funcNum, uint8_t len, uint8_t data[9]);
+	bool CallFunctionIfRegistered(uint8_t funcNum, uint8_t len, uint64_t data);
 	uint32_t GetUID();
 	uint8_t GetCID();
 	uint16_t GetVID();
 	uint16_t GetPID();
 	uint8_t GetClass();
 private:
-	void(*_functionTable[256])(CANPnP, uint8_t, uint8_t*);
+	void(*_functionTable[256])(CANPnP, uint8_t, uint64_t);
 	uint32_t _device_uid;
 	uint8_t _device_cid;
 	uint16_t _device_vid;
@@ -57,10 +56,13 @@ private:
 	uint32_t MakeAddress(uint8_t priority, bool heartbeat);
 	void SendHeartbeat();
 	uint64_t _statusFlags;
+	uint8_t _incomingPriority;
+	uint8_t _incomingFunction;
 	// Default functions
-	static void GetStatus(CANPnP node, uint8_t len, uint8_t data[8]);
-	static void Reset(CANPnP node, uint8_t len, uint8_t data[8]);
-	static void FirmwareOops(CANPnP node, uint8_t len, uint8_t data[8]);
+	static void GetStatus(CANPnP node, uint8_t len, uint64_t data);
+	static void Reset(CANPnP node, uint8_t len, uint64_t data);
+	static void FirmwareOops(CANPnP node, uint8_t len, uint64_t data);
+	static uint8_t DataByte(uint64_t data, uint8_t position);
 };
 
 #endif

@@ -20,14 +20,14 @@ CANPnP::CANPnP() {
 	// Register builtin functions
 	RegisterFunction(CANPnP_FUNCTION_STATUS, CANPnP::GetStatus);
 	RegisterFunction(CANPnP_FUNCTION_RESET, CANPnP::Reset);
-	// These functions shouldn't be called here. Respond with an error
+	// These functions shouldn't be called here. Respond with an error/warning
 	RegisterFunction(CANPnP_FUNCTION_FIRMWARESTART, CANPnP::FirmwareOops);
 	RegisterFunction(CANPnP_FUNCTION_FIRMWAREPREFACE, CANPnP::FirmwareOops);
 	RegisterFunction(CANPnP_FUNCTION_FIRMWAREPAYLOAD, CANPnP::FirmwareOops);
 	RegisterFunction(CANPnP_FUNCTION_FIRMWAREEND, CANPnP::FirmwareOops);
 }
 
-bool CANPnP::RegisterFunction(uint8_t funcNum, void(*funcPtr)(CANPnP node, uint8_t len, uint8_t* data)) {
+bool CANPnP::RegisterFunction(uint8_t funcNum, void(*funcPtr)(CANPnP node, uint8_t len, uint64_t)) {
 	if (FunctionRegistered(funcNum)) {
 		return false;
 	}
@@ -47,7 +47,7 @@ bool CANPnP::FunctionRegistered(uint8_t funcNum) {
 	return _functionTable[funcNum] != 0;
 }
 
-bool CANPnP::CallFunctionIfRegistered(uint8_t funcNum, uint8_t len, uint8_t data[7]) {
+bool CANPnP::CallFunctionIfRegistered(uint8_t funcNum, uint8_t len, uint64_t data) {
 	if (!FunctionRegistered(funcNum)) {
 		return false;
 	}
@@ -84,22 +84,29 @@ uint32_t CANPnP::MakeAddress(uint8_t priority, bool heartbeat) {
 }
 
 // Default functions (application mode)
-void CANPnP::GetStatus(CANPnP node, uint8_t len, uint8_t data[7]) {
-	if (len > 0 && data[0] == CANPnP_STATUS_CLEAR_FLAGS) {
+void CANPnP::GetStatus(CANPnP node, uint8_t len, uint64_t data) {
+	if (len > 0 && DataByte(data, 0) == CANPnP_STATUS_CLEAR_FLAGS) {
 		node._statusFlags = 0;
 	}
 	// reply with lowest 7 bytes of _statusFlags
 }
 
-void CANPnP::Reset(CANPnP node, uint8_t len, uint8_t data[7]) {
+void CANPnP::Reset(CANPnP node, uint8_t len, uint64_t data) {
 	// Activate watchdog if not already active
 	// Shorten watchdog time
 	// Send acknowledgement
 	// for(;;){} // Infinite loop to timeout and force reset
 }
 
-void CANPnP::FirmwareOops(CANPnP node, uint8_t len, uint8_t data[7]) {
+void CANPnP::FirmwareOops(CANPnP node, uint8_t len, uint64_t data) {
 	// This should be called during bootload, not here.
 	// Send acknowledgement with an error
 	// Do nothing else - leave it to the other node to reset us properly
+}
+
+uint8_t CANPnP::DataByte(uint64_t data, uint8_t position) {
+	if (position > 7) {
+		return 0x00;
+	}
+	return (data >> 4 * position) & 0xFF;
 }

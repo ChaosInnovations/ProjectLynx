@@ -1,6 +1,6 @@
 #include "Keypad.h"
 
-using namespace std;
+//using namespace std;
 
 // Uses PORTD0:7
 // 4x4 MUX Keypad

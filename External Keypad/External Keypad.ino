@@ -14,19 +14,19 @@
 //          | * Also uses PCINT1 (PCI0, PORTB1).     |
 
 #include <EEPROM.h>
-#include "Keypad.cpp"
-#include "CANPnP_AVR.cpp"
+#include "Keypad.h"
+#include "CANPnP_AVR.h"
 
 Keypad keypad;
 //HD44780 lcd([I2C_ADDR], [pins,...]);
 //Buzzer buzz; // Always at PORTB.0
-CANPnP canNode;
+//CANPnP canNode;
 
 void setup() {
 	Serial.begin(9600);
 	// Pass in our functions to canNode as funcNum, void(*funcPtr)(uint8_t, uint8_t*) pairs that
 	// accept uint8_t[7] where uint8_t[0] = 0>=len<=7 and uint8_t[1:<=7] are data
-	canNode.RegisterFunction(0x10, sampleCanNodeFunction);
+	//canNode.RegisterFunction(0x10, sampleCanNodeFunction);
 }
 
 void loop() {
@@ -41,6 +41,6 @@ void loop() {
 	}
 }
 
-void sampleCanNodeFunction(CANPnP node, uint8_t len, uint8_t data[7]) {
-	return;
-}
+//void sampleCanNodeFunction(CANPnP node, uint8_t len, uint64_t data) {
+//	return;
+//}
