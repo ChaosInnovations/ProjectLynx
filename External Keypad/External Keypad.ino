@@ -13,13 +13,14 @@
 // SPI      | CAN ctrl (via library?)                | Not Started
 //          | * Also uses PCINT1 (PCI0, PORTB1).     |
 
+#include <EEPROM.h>
 #include "Keypad.cpp"
 #include "CANPnP_AVR.cpp"
 
 Keypad keypad;
 //HD44780 lcd([I2C_ADDR], [pins,...]);
 //Buzzer buzz; // Always at PORTB.0
-CANPnP_AVR canNode;
+CANPnP canNode;
 
 void setup() {
 	Serial.begin(9600);
@@ -40,6 +41,6 @@ void loop() {
 	}
 }
 
-void sampleCanNodeFunction(uint8_t len, uint8_t data[9]) {
+void sampleCanNodeFunction(CANPnP node, uint8_t len, uint8_t data[8]) {
 	return;
 }
