@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="External Keypad.ino" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="__vm\.External Keypad.vsarduino.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -29,5 +26,9 @@
     <ClCompile Include="Keypad.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="External Keypad.cpp" />
+    <None Include="External Keypad.ino" />
   </ItemGroup>
 </Project>

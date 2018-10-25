@@ -47,7 +47,10 @@ public:
 	uint16_t GetPID();
 	uint8_t GetClass();
 private:
+	// Function Table, up to 256 functions (0:5 reserved)
+	// This takes up lots of space - can it be any smaller?
 	void(*_functionTable[256])(CANPnP, uint8_t, uint64_t);
+
 	uint32_t _device_uid;
 	uint8_t _device_cid;
 	uint16_t _device_vid;

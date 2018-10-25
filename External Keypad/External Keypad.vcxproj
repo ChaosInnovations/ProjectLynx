@@ -112,9 +112,10 @@
     <DebuggerFlavor>VisualMicroDebugger</DebuggerFlavor>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="External Keypad.ino">
+    <None Include="External Keypad.cpp">
       <FileType>CppCode</FileType>
     </None>
+    <None Include="External Keypad.ino" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Keypad.h" />
