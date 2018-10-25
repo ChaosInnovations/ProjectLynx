@@ -25,7 +25,7 @@ CANPnP canNode;
 void setup() {
 	Serial.begin(9600);
 	// Pass in our functions to canNode as funcNum, void(*funcPtr)(uint8_t, uint8_t*) pairs that
-	// accept uint8_t[9] where uint8_t[0] = 0>=len<=8 and uint8_t[1:<=8] are data
+	// accept uint8_t[7] where uint8_t[0] = 0>=len<=7 and uint8_t[1:<=7] are data
 	canNode.RegisterFunction(0x10, sampleCanNodeFunction);
 }
 
@@ -41,6 +41,6 @@ void loop() {
 	}
 }
 
-void sampleCanNodeFunction(CANPnP node, uint8_t len, uint8_t data[8]) {
+void sampleCanNodeFunction(CANPnP node, uint8_t len, uint8_t data[7]) {
 	return;
 }

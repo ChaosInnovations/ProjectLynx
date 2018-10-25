@@ -47,7 +47,7 @@ bool CANPnP::FunctionRegistered(uint8_t funcNum) {
 	return _functionTable[funcNum] != 0;
 }
 
-bool CANPnP::CallFunctionIfRegistered(uint8_t funcNum, uint8_t len, uint8_t data[9]) {
+bool CANPnP::CallFunctionIfRegistered(uint8_t funcNum, uint8_t len, uint8_t data[7]) {
 	if (!FunctionRegistered(funcNum)) {
 		return false;
 	}
@@ -84,21 +84,21 @@ uint32_t CANPnP::MakeAddress(uint8_t priority, bool heartbeat) {
 }
 
 // Default functions (application mode)
-void CANPnP::GetStatus(CANPnP node, uint8_t len, uint8_t data[8]) {
+void CANPnP::GetStatus(CANPnP node, uint8_t len, uint8_t data[7]) {
 	if (len > 0 && data[0] == CANPnP_STATUS_CLEAR_FLAGS) {
 		node._statusFlags = 0;
 	}
-	// reply with _statusFlags as 8 bytes
+	// reply with lowest 7 bytes of _statusFlags
 }
 
-void CANPnP::Reset(CANPnP node, uint8_t len, uint8_t data[8]) {
+void CANPnP::Reset(CANPnP node, uint8_t len, uint8_t data[7]) {
 	// Activate watchdog if not already active
 	// Shorten watchdog time
 	// Send acknowledgement
 	// for(;;){} // Infinite loop to timeout and force reset
 }
 
-void CANPnP::FirmwareOops(CANPnP node, uint8_t len, uint8_t data[8]) {
+void CANPnP::FirmwareOops(CANPnP node, uint8_t len, uint8_t data[7]) {
 	// This should be called during bootload, not here.
 	// Send acknowledgement with an error
 	// Do nothing else - leave it to the other node to reset us properly
