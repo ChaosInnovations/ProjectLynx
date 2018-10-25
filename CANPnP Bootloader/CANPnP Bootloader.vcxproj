@@ -118,6 +118,9 @@
   <ItemGroup>
     <ClInclude Include="__vm\.CANPnP Bootloader.vsarduino.h" />
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="CANPnP Bootloader.cpp" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
