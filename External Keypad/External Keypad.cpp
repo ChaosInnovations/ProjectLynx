@@ -1,9 +1,3 @@
-/*
- Name:		External_Keypad.ino
- Created:	10/24/2018 8:10:06 AM
- Author:	Thomas Boland
-*/
-
 // Connected Devices                                 | Dev Status
 // ================================================================
 // PORTD0:7 | 4x4 keypad - cols 0:3, rows 4:7        | Done, but some keys (cols 0 and 1) won't work while UART in use
@@ -13,7 +7,6 @@
 // SPI      | CAN ctrl (via library?)                | Not Started
 //          | * Also uses PCINT1 (PCI0, PORTB1).     |
 
-#include <EEPROM.h>
 #include "Keypad.h"
 #include "CANPnP_AVR.h"
 
