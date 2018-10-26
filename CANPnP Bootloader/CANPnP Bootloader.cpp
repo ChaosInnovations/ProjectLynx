@@ -105,6 +105,10 @@ int main() {
 	_messageOut = ((uint64_t)_firmwareVersion << 5) | ((uint64_t)_nodePID << 3) | ((uint64_t)_nodeVID << 1) | _nodeCID;
 	SendMessage(HEARTBEAT_PRIORITY, true, 8, _messageOut);
 
+	// Set up interrupts
+	MCUCR = (1 << IVCE);
+	MCUCR = (1 << IVSEL);
+
 	TCCR0A |= (1 << WGM12) | (1 << CS11) | (1 << CS10); // Setup boot timeout
 	TCNT0 = 0; // initialize counter
 	// This should be checked:
