@@ -54,11 +54,12 @@
 
 #define HEARTBEAT_PRIORITY 0x04
 
+#define WatchdogReset() asm("wdr")
+
 int main();
 void SendMessage(uint8_t priority, bool heartbeat, uint8_t len, uint64_t data);
 void GetMessage();
 void WatchdogConfig(uint8_t x);
-void WatchdogReset();
 void(*StartApplication)(void) = 0x0000;
 void DoPageWrite(uint16_t size);
 void DoPageRead(uint16_t size);
@@ -78,6 +79,11 @@ uint16_t address = 0;
 int main() {
 	// Was this a hard or soft reset?
 	//  Skip bootloader if hard
+
+	// Watchdog setup
+	WatchdogConfig(WATCHDOG_500MS);
+	WatchdogReset();
+
 	uint8_t mcusr_copy = MCUSR;
 	if (mcusr_copy & (1 << EXTRF)) StartApplication();
 
@@ -106,18 +112,14 @@ int main() {
 	TIMSK0 |= (1 << OCIE1A); // enable compare interrupt
 	sei();
 
-	// Watchdog setup
-	WatchdogConfig(WATCHDOG_500MS);
-	WatchdogReset();
-
 	uint16_t pageSize;
 
 	for ever {
+		WatchdogReset();
 		isWaiting = true; // Allow timeout to switch to app if we don't get a message.
 		// Wait for a CAN interrupt
 		GetMessage();
 		// Read message
-		WatchdogReset();
 		isWaiting = false;
 		// Check function
 			// 0x00: status
@@ -188,10 +190,6 @@ void WatchdogConfig(uint8_t x) {
 	WDTCSR = x;
 }
 
-void WatchdogReset() {
-	asm("wdr");
-}
-
 ISR(TIMER0_COMPA_vect) {
 	if (isWaiting) {
 		// Bootloader is out of time and not busy. Feed WDT and start application.
@@ -242,6 +240,7 @@ void DoPageRead(uint16_t size) {
 	uint64_t data;
 	uint8_t count = 0;
 	do {
+		WatchdogReset();
 		data = (data >> 8 & 0x00FFFFFFFFFFFFFF) | ((uint64_t)pgm_read_byte_near(address++) << 56);
 		count++;
 		if (count == 7) {

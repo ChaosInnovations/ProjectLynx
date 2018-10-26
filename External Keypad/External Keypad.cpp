@@ -35,6 +35,8 @@ int main() {
 		delay(100);
 		keypad.UpdateStates();
 		Serial.print(keypad.GetKeyStates(), HEX);
+		Serial.print("\t");
+		Serial.print(canNode.GetUID(), HEX);
 		if (keypad.IsKeyPressed(KEY_OK)) {
 			Serial.println("\tKey OK Pressed");
 		}
