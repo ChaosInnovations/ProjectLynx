@@ -4,7 +4,11 @@
 // SPI      | CAN ctrl (via library)                | Not Started
 //          | * Also uses PCINT1 (PCI0, PORTB1).     |
 
+//#define NUM_CAN_FUNCTIONS 1
+
 #include "CANPnP_AVR.h"
+
+#define VERSION 0x0001
 
 CANPnP canNode;
 
@@ -19,6 +23,9 @@ int main() {
 	DDRD = 0xFF;
 	Serial.begin(9600);
 	Serial.println("Start. Default mode set to flash");
+	if (canNode.GetVersion() != VERSION) {
+		canNode.SetVersion(VERSION);
+	}
 	canNode.RegisterFunction(0x10, SetMode);
 	Serial.println("Registered SetMode function at 0x10");
 	for (;;) {

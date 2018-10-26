@@ -36,6 +36,10 @@
 
 #define CANPnP_STATUS_CLEAR_FLAGS 0x01
 
+//#ifndef NUM_CAN_FUNCTIONS
+//#define NUM_CAN_FUNCTIONS 0
+//#endif
+
 class CANPnP {
 public:
 	explicit CANPnP();
@@ -49,22 +53,27 @@ public:
 	uint16_t GetPID();
 	uint8_t GetClass();
 	uint16_t GetVersion();
+	void SetVersion(uint16_t version);
+	void SendMessage(bool heartbeat, uint64_t data);
+	void SendMessage(uint8_t priority, uint8_t function, uint64_t data);
+	void SendMessage(uint8_t function, uint64_t data);
+	void SendMessage(uint64_t data);
+	void SendMessage(uint8_t priority, bool heartbeat, uint8_t function, uint64_t data);
 private:
 	// Function Table, up to 256 functions (0:5 reserved)
 	// This takes up lots of space - can it be any smaller?
-	void(*_functionTable[256])(CANPnP, uint8_t, uint64_t);
-
+    void(*_functionTable[256])(CANPnP, uint8_t, uint64_t);
+	//void(*_functionTable[NUM_CAN_FUNCTIONS + 4])(CANPnP, uint8_t, uint64_t);
+	uint8_t _incomingPriority;
+	uint8_t _incomingFunction;
 	uint32_t _device_uid;
 	uint8_t _device_cid;
 	uint16_t _device_vid;
 	uint16_t _device_pid;
 	uint8_t _device_class;
 	uint16_t _device_version;
-	uint32_t MakeAddress(uint8_t priority, bool heartbeat);
 	void SendHeartbeat();
 	uint64_t _statusFlags;
-	uint8_t _incomingPriority;
-	uint8_t _incomingFunction;
 	// Default functions
 	static void GetStatus(CANPnP node, uint8_t len, uint64_t data);
 	static void Reset(CANPnP node, uint8_t len, uint64_t data);

@@ -26,6 +26,16 @@ CANPnP::CANPnP() {
 	RegisterFunction(CANPnP_FUNCTION_PAGEDATA, CANPnP::FirmwareOops);
 }
 
+uint16_t CANPnP::GetVersion() {
+	return _device_version;
+}
+
+void CANPnP::SetVersion(uint16_t version) {
+	_device_version = version;
+	EEPROM.write(CANPnP_EEPROM_VERH, _device_version >> 8);
+	EEPROM.write(CANPnP_EEPROM_VERL, _device_version);
+}
+
 bool CANPnP::RegisterFunction(uint8_t funcNum, void(*funcPtr)(CANPnP node, uint8_t len, uint64_t)) {
 	if (FunctionRegistered(funcNum)) {
 		return false;
@@ -55,7 +65,7 @@ bool CANPnP::CallFunctionIfRegistered(uint8_t funcNum, uint8_t len, uint64_t dat
 }
 
 void CANPnP::SendHeartbeat() {
-
+	SendMessage(true, ((uint64_t)_device_version << 4) | ((uint32_t)_device_pid << 2) | _device_vid);
 }
 
 uint32_t CANPnP::GetUID() {
@@ -76,15 +86,6 @@ uint16_t CANPnP::GetPID() {
 
 uint8_t CANPnP::GetClass() {
 	return _device_class;
-}
-
-uint16_t CANPnP::GetVersion()
-{
-	return _device_version;
-}
-
-uint32_t CANPnP::MakeAddress(uint8_t priority, bool heartbeat) {
-	return (((uint32_t)priority << 25) | ((uint32_t)heartbeat << 24) | _device_uid) & 0x1FFFFFFF;
 }
 
 // Default functions (application mode)
@@ -114,3 +115,15 @@ uint8_t CANPnP::DataByte(uint64_t data, uint8_t position) {
 	}
 	return (data >> 4 * position) & 0xFF;
 }
+
+void CANPnP::SendMessage(uint8_t priority, bool heartbeat, uint8_t function, uint64_t data) {
+	int addr = (((uint32_t)priority << 25) | ((uint32_t)heartbeat << 24) | _device_uid) & 0x1FFFFFFF;
+}
+
+// Various overflows for the SendMessage
+void CANPnP::SendMessage(bool heartbeat, uint64_t data) {
+	SendMessage(heartbeat ? CANPnP_HEARTBEAT_PRIORITY : _incomingPriority, heartbeat, heartbeat ? _device_cid : _incomingFunction, data);
+}
+void CANPnP::SendMessage(uint8_t priority, uint8_t function, uint64_t data) { SendMessage(priority, false, function, data); }
+void CANPnP::SendMessage(uint8_t function, uint64_t data) { SendMessage(_incomingPriority, false, function, data); }
+void CANPnP::SendMessage(uint64_t data) { SendMessage(_incomingPriority, false, _incomingFunction, data); }
