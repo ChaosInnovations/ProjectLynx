@@ -14,6 +14,8 @@
 	#include "WProgram.h"
 #endif
 
+#include <EEPROM.h>
+
 #define CANPnP_EEPROM_UIDH 0x00
 #define CANPnP_EEPROM_UIDM 0x01
 #define CANPnP_EEPROM_UIDL 0x02
