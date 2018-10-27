@@ -8,7 +8,77 @@
 #include <EEPROM.h>
 #include "CANPnP_AVR.h"
 
-CANPnP::CANPnP() {
+void AVRPin::ApplyDirection(uint8_t val) {
+	DDR = (DDR & ~(1<<Position)) | (val << Position);
+}
+
+void AVRPin::SetPort(uint8_t val) {
+	PORT = (PORT & ~(1 << Position)) | (val << Position);
+}
+
+void AVRPin::ToggleOutput() {
+	PIN |= 1 << Position;
+}
+
+uint8_t AVRPin::GetInputs() {
+	return PIN & (1 << Position);
+}
+
+CANPnP::CANPnP(AVRPin cs, AVRPin pcInt) {
+
+	// Flow
+	// ========================
+	// set CS
+	// Deselect
+	// setup PCINT
+	// Open SPI
+	// Need idmodeset, speedset, clockset
+	// init ourselves with (idmodeset, speedset, clockset):
+		// reset
+		//		Send reset command
+		// enter config mode
+		// set rate based on speedset and clockset
+		// Whatever these do:
+		//		mcp2515_initCANBuffers();
+		//			Set filters & masks to 0 (& disable?)
+		//			Clear & deactivate TX buffers
+		//			Clear RX buffers
+		//		mcp2515_setRegister(MCP_CANINTE, MCP_RX0IF | MCP_RX1IF);
+		//			Send write command
+		//			Send address
+		//			Send value
+		//		//Sets BF pins as GPO
+		//		mcp2515_setRegister(MCP_BFPCTRL, MCP_BxBFS_MASK | MCP_BxBFE_MASK);
+		//		//Sets RTS pins as GPI
+		//		mcp2515_setRegister(MCP_TXRTSCTRL, 0x00);
+		// Set mode:
+		//		switch(canIDMode) {
+		//			case (MCP_ANY):
+		//				mcp2515_modifyRegister(MCP_RXB0CTRL, MCP_RXB_RX_MASK | MCP_RXB_BUKT_MASK, MCP_RXB_RX_ANY | MCP_RXB_BUKT_MASK);
+		//					Send bitmod command
+		//					Send address
+		//					Send mask
+		//					Send value
+		//				mcp2515_modifyRegister(MCP_RXB1CTRL, MCP_RXB_RX_MASK, MCP_RXB_RX_ANY);
+		//				break;
+		//			// The followingn two functions of the MCP2515 do not work, there is a bug in the silicon.
+		//			case (MCP_STD):
+		//				mcp2515_modifyRegister(MCP_RXB0CTRL, MCP_RXB_RX_MASK | MCP_RXB_BUKT_MASK, MCP_RXB_RX_STD | MCP_RXB_BUKT_MASK);
+		//				mcp2515_modifyRegister(MCP_RXB1CTRL, MCP_RXB_RX_MASK, MCP_RXB_RX_STD);
+		//				break;
+		//			case (MCP_EXT):
+		//				mcp2515_modifyRegister(MCP_RXB0CTRL, MCP_RXB_RX_MASK | MCP_RXB_BUKT_MASK, MCP_RXB_RX_EXT | MCP_RXB_BUKT_MASK);
+		//				mcp2515_modifyRegister(MCP_RXB1CTRL, MCP_RXB_RX_MASK, MCP_RXB_RX_EXT);
+		//				break;
+		//			case (MCP_STDEXT):
+		//				mcp2515_modifyRegister(MCP_RXB0CTRL, MCP_RXB_RX_MASK | MCP_RXB_BUKT_MASK, MCP_RXB_RX_STDEXT | MCP_RXB_BUKT_MASK);
+		//				mcp2515_modifyRegister(MCP_RXB1CTRL, MCP_RXB_RX_MASK, MCP_RXB_RX_STDEXT);
+		//				break;
+		//			default: // bad mode
+		//				break;
+		// leave config mode (go back to whatever we had before?)
+	// =====================
+
 	// Read and initialize our UID, CID, VID, PID, and Class. Write if not set yet.
 	_device_uid = ((long)EEPROM.read(CANPnP_EEPROM_UIDH) << 16) | (EEPROM.read(CANPnP_EEPROM_UIDM) << 8) | EEPROM.read(CANPnP_EEPROM_UIDL);
 	_device_cid = EEPROM.read(CANPnP_EEPROM_CID);
@@ -118,6 +188,14 @@ uint8_t CANPnP::DataByte(uint64_t data, uint8_t position) {
 
 void CANPnP::SendMessage(uint8_t priority, bool heartbeat, uint8_t function, uint64_t data) {
 	int addr = (((uint32_t)priority << 25) | ((uint32_t)heartbeat << 24) | _device_uid) & 0x1FFFFFFF;
+
+	// Flow
+	// ==================
+	// Wait for free TX buffer
+	// Write to TX buffer
+	// Request to send
+	// Wait to see that request sent?
+	// ==================
 }
 
 // Various overflows for the SendMessage

@@ -40,9 +40,20 @@
 //#define NUM_CAN_FUNCTIONS 0
 //#endif
 
+struct AVRPin {
+	uint8_t DDR;  // Direction register
+	uint8_t PORT; // Port register
+	uint8_t PIN;  // Pin register
+	uint8_t Position; // Select our pin
+	void ApplyDirection(uint8_t val);
+	void SetPort(uint8_t val);
+	void ToggleOutput();
+	uint8_t GetInputs();
+};
+
 class CANPnP {
 public:
-	explicit CANPnP();
+	explicit CANPnP(AVRPin cs, AVRPin pcInt);
 	bool RegisterFunction(uint8_t funcNum, void(*funcPtr)(CANPnP node, uint8_t len, uint64_t));
 	bool UnregisterFunction(uint8_t funcNum);
 	bool FunctionRegistered(uint8_t funcNum);

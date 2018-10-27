@@ -1,7 +1,7 @@
 // Connected Devices                                 | Dev Status
 // ================================================================
 // PORTD2   | LED (low = on)                         | Not Started
-// SPI      | CAN ctrl (via library)                | Not Started
+// SPI      | CAN ctrl (via library)                 | Not Started
 //          | * Also uses PCINT1 (PCI0, PORTB1).     |
 
 //#define NUM_CAN_FUNCTIONS 1
@@ -10,19 +10,25 @@
 
 #define VERSION 0x0001
 
-CANPnP canNode;
+AVRPin canCSPin{ DDRB, PORTB, PINB, PORTB2 };
+AVRPin canIntPin{ DDRB, PORTB, PINB, PORTB1 };
+
+CANPnP canNode(canCSPin, canIntPin);
+
+AVRPin ledPin{ DDRD, PORTD, PIND, PORTD2 };
 
 void SetMode(CANPnP node, uint8_t len, uint64_t data);
 uint8_t _currentMode = 0; // 0 = flash, 1 = on, 2+ = off
-uint8_t state = 0;
 
 int main() {
 	// Arduino bootloader uses UART. Disconnect so it can be reconnected in Serial.begin.
 	// Write our own init() when we start using CANPnP bootloader...
 	init();
-	DDRD = 0xFF;
+	ledPin.ApplyDirection(1);
 	Serial.begin(9600);
 	Serial.println("Start. Default mode set to flash");
+	Serial.print("Node UID:\t");
+	Serial.println(canNode.GetUID(), HEX);
 	if (canNode.GetVersion() != VERSION) {
 		canNode.SetVersion(VERSION);
 	}
@@ -31,12 +37,11 @@ int main() {
 	for (;;) {
 		delay(500);
 		if (_currentMode == 0) {
-			state = ~state;
+			ledPin.ToggleOutput();
 		}
 		else {
-			state = _currentMode & 1;
+			ledPin.SetPort(_currentMode & 1);
 		}
-		PORTD = PORTD & ~(1 << PORTD2) | ((state & 1) << PORTD2);
 	}
 }
 
