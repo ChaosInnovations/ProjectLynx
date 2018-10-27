@@ -18,8 +18,6 @@
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
 
-#define ever (;;)
-
 /* Watchdog settings */
 #define WATCHDOG_OFF    (0)
 #define WATCHDOG_16MS   (_BV(WDE))
@@ -60,7 +58,8 @@ int main();
 void SendMessage(uint8_t priority, bool heartbeat, uint8_t len, uint64_t data);
 void GetMessage();
 void WatchdogConfig(uint8_t x);
-void(*StartApplication)(void) = 0x0000;
+void(*appStart)(void) = 0x0000;
+void StartApplication();
 void DoPageWrite(uint16_t size);
 void DoPageRead(uint16_t size);
 bool isWaiting = false;
@@ -75,6 +74,7 @@ uint16_t _nodeVID = 0;
 uint8_t _nodeCID = 0;
 uint8_t _nodeClass = 0;
 uint16_t address = 0;
+bool _canRecvFlag = false;
 
 int main() {
 	// Was this a hard or soft reset?
@@ -109,14 +109,19 @@ int main() {
 	MCUCR = (1 << IVCE);
 	MCUCR = (1 << IVSEL);
 
-	TCCR0A |= (1 << WGM12) | (1 << CS11) | (1 << CS10); // Setup boot timeout
-	TCNT0 = 0; // initialize counter
+	TCCR1A |= (1 << WGM12) | (1 << CS11) | (1 << CS10); // Setup boot timeout
+	TCNT1 = 0; // initialize counter
 	// This should be checked:
-	OCR0A = 62499; // initialize compare value @ 250ms
-	TIMSK0 |= (1 << OCIE1A); // enable compare interrupt
+	OCR1A = 62499; // initialize compare value @ 250ms
+	TIMSK1 |= (1 << OCIE1A); // enable compare interrupt
+
+	// Register PCI0 for PCINT1
+
 	sei();
 
 	uint16_t pageSize;
+
+#define ever (;;)
 
 	for ever {
 		WatchdogReset();
@@ -182,7 +187,7 @@ void SendMessage(uint8_t priority, bool heartbeat, uint8_t len, uint64_t data) {
 
 void GetMessage() {
 	// Wait for PORTB1/PCIN1(PCI0) to trigger
-	// for (;;) {}
+	while (!_canRecvFlag) {}
 	// Get msg from CAN ctrl
 	_incomingPriority = 0;
 	_incomingLen = 0;
@@ -194,12 +199,15 @@ void WatchdogConfig(uint8_t x) {
 	WDTCSR = x;
 }
 
-ISR(TIMER0_COMPA_vect) {
+ISR(TIMER1_COMPA_vect) {
 	if (isWaiting) {
-		// Bootloader is out of time and not busy. Feed WDT and start application.
-		WatchdogReset();
+		// Bootloader is out of time and not busy. Start application.
 		StartApplication();
 	}
+}
+
+ISR(PCINT0_vect) {
+	_canRecvFlag = true;
 }
 
 void DoPageWrite(uint16_t size) {
@@ -255,4 +263,19 @@ void DoPageRead(uint16_t size) {
 
 	} while (size);
 	SendMessage(_incomingPriority, false, count + 1, (data >> (7 - count)) | FUNCTION_PAGEDATA);
+}
+
+void StartApplication() {
+	cli();
+
+	// Feed WDT
+	WatchdogReset();
+
+	// Clean up timers and PCINT?
+
+	// Return ISRs to App
+	MCUCR = (1 << IVCE);
+	MCUCR = 0;
+
+	appStart();
 }
