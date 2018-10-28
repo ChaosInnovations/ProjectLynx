@@ -94,6 +94,7 @@ CANPnP::CANPnP(AVRPin cs, AVRPin pcInt) {
 	// These functions shouldn't be called here. Respond with an error/warning
 	RegisterFunction(CANPnP_FUNCTION_PAGESTART, CANPnP::FirmwareOops);
 	RegisterFunction(CANPnP_FUNCTION_PAGEDATA, CANPnP::FirmwareOops);
+	RegisterFunction(CANPnP_FUNCTION_SETCID, CANPnP::SetCID);
 }
 
 uint16_t CANPnP::GetVersion() {
@@ -135,7 +136,8 @@ bool CANPnP::CallFunctionIfRegistered(uint8_t funcNum, uint8_t len, uint64_t dat
 }
 
 void CANPnP::SendHeartbeat() {
-	SendMessage(true, ((uint64_t)_device_version << 4) | ((uint32_t)_device_pid << 2) | _device_vid);
+	// CID is auto-added
+	SendMessage(true, ((uint64_t)_device_class << 6) | ((uint64_t)_device_version << 4) | ((uint32_t)_device_pid << 2) | _device_vid);
 }
 
 uint32_t CANPnP::GetUID() {
@@ -164,19 +166,34 @@ void CANPnP::GetStatus(CANPnP node, uint8_t len, uint64_t data) {
 		node._statusFlags = 0;
 	}
 	// reply with lowest 7 bytes of _statusFlags
+	node.SendMessage(node._statusFlags);
 }
 
+#define ever (;;)
 void CANPnP::Reset(CANPnP node, uint8_t len, uint64_t data) {
 	// Activate watchdog if not already active
 	// Shorten watchdog time
 	// Send acknowledgement
+	node.SendMessage(CANPnP_MSG_ACK);
 	// for(;;){} // Infinite loop to timeout and force reset
+	for ever{}
 }
 
 void CANPnP::FirmwareOops(CANPnP node, uint8_t len, uint64_t data) {
 	// This should be called during bootload, not here.
 	// Send acknowledgement with an error
+	node.SendMessage(CANPnP_MSG_BOOT_ONLY);
 	// Do nothing else - leave it to the other node to reset us properly
+}
+
+void CANPnP::SetCID(CANPnP node, uint8_t len, uint64_t data) {
+	if (len == 0) {
+		// Bad, return error
+		node.SendMessage(CANPnP_MSG_MISSING_ARGS);
+		return;
+	}
+	EEPROM.write(CANPnP_EEPROM_CID, DataByte(data, 0));
+	node.SendMessage(CANPnP_MSG_ACK);
 }
 
 uint8_t CANPnP::DataByte(uint64_t data, uint8_t position) {

@@ -33,8 +33,14 @@
 #define CANPnP_FUNCTION_RESET 0x01
 #define CANPnP_FUNCTION_PAGESTART 0x02
 #define CANPnP_FUNCTION_PAGEDATA 0x03
+#define CANPnP_FUNCTION_SETCID 0x04
 
 #define CANPnP_STATUS_CLEAR_FLAGS 0x01
+
+#define CANPnP_MSG_ACK          0b00000001
+#define CANPnP_MSG_BOOT_ONLY    0b00000010
+#define CANPnP_MSG_APP_ONLY     0b00000100 // Don't really need this because we aren't the bootloader
+#define CANPnP_MSG_MISSING_ARGS 0b00001000
 
 //#ifndef NUM_CAN_FUNCTIONS
 //#define NUM_CAN_FUNCTIONS 0
@@ -89,6 +95,7 @@ private:
 	static void GetStatus(CANPnP node, uint8_t len, uint64_t data);
 	static void Reset(CANPnP node, uint8_t len, uint64_t data);
 	static void FirmwareOops(CANPnP node, uint8_t len, uint64_t data);
+	static void SetCID(CANPnP node, uint8_t len, uint64_t data);
 	static uint8_t DataByte(uint64_t data, uint8_t position);
 };
 
