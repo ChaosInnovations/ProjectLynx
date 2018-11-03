@@ -6,14 +6,33 @@
 */
 
 #include <EEPROM.h>
+#include "mcp2515.h"
 #include "CANPnP_AVR.h"
 
+// SPI helper functions
+// ====================
+void spi_begin() {
+	// init pins
+	// set timing and mode
+}
+
+uint8_t spi_transfer(uint8_t value) {
+	SPDR = value;
+	//insert nop here
+	while (0/*not sent yet*/) {}
+	return SPDR;
+}
+
+#define spi_read() spi_transfer(0x00)
+
+// AVRPin struct
+// =============
 void AVRPin::ApplyDirection(uint8_t val) {
-	DDR = (DDR & ~(1<<Position)) | (val << Position);
+	DDR = (DDR & ~(1 << Position)) | ((val & 1) << Position);
 }
 
 void AVRPin::SetPort(uint8_t val) {
-	PORT = (PORT & ~(1 << Position)) | (val << Position);
+	PORT = (PORT & ~(1 << Position)) | ((val & 1) << Position);
 }
 
 void AVRPin::ToggleOutput() {
@@ -24,19 +43,26 @@ uint8_t AVRPin::GetInputs() {
 	return PIN & (1 << Position);
 }
 
+// CANPnP class
+// ============
 CANPnP::CANPnP(AVRPin cs, AVRPin pcInt) {
-
 	// Flow
 	// ========================
 	// set CS
+	_CS = cs;
 	// Deselect
+	_CS.ApplyDirection(AVRPIN_DIR_OUTPUT);
+	_CS.SetPort(AVRPIN_HIGH);
 	// setup PCINT
 	// Open SPI
+	spi_begin();
 	// Need idmodeset, speedset, clockset
 	// init ourselves with (idmodeset, speedset, clockset):
 		// reset
 		//		Send reset command
+	mcp2515_reset();
 		// enter config mode
+	mcp2515_modifyRegister(MCP2515_REG_CANCTRL, MCP2515_MASK_CANCTRL_MODE, MCP2515_MODE_CONFIG);
 		// set rate based on speedset and clockset
 		// Whatever these do:
 		//		mcp2515_initCANBuffers();
@@ -222,3 +248,38 @@ void CANPnP::SendMessage(bool heartbeat, uint64_t data) {
 void CANPnP::SendMessage(uint8_t priority, uint8_t function, uint64_t data) { SendMessage(priority, false, function, data); }
 void CANPnP::SendMessage(uint8_t function, uint64_t data) { SendMessage(_incomingPriority, false, function, data); }
 void CANPnP::SendMessage(uint64_t data) { SendMessage(_incomingPriority, false, _incomingFunction, data); }
+
+// low-level functions
+void CANPnP::mcp2515_reset() {
+	_CS.SetPort(AVRPIN_LOW);
+	spi_transfer(MCP2515_CMD_RESET);
+	_CS.SetPort(AVRPIN_HIGH);
+}
+
+uint8_t CANPnP::mcp2515_readRegister(uint8_t address) {
+	uint8_t result;
+
+	_CS.SetPort(AVRPIN_LOW);
+	spi_transfer(MCP2515_CMD_READ);
+	spi_transfer(address);
+	result = spi_read();
+	_CS.SetPort(AVRPIN_HIGH);
+
+	return result;
+}
+
+void CANPnP::mcp2515_writeRegister(uint8_t address, uint8_t value) {
+	_CS.SetPort(AVRPIN_LOW);
+	spi_transfer(MCP2515_CMD_WRITE);
+	spi_transfer(address);
+	spi_transfer(value);
+	_CS.SetPort(AVRPIN_HIGH);
+}
+
+void CANPnP::mcp2515_modifyRegister(uint8_t address, uint8_t mask, uint8_t value) {
+	_CS.SetPort(AVRPIN_LOW);
+	spi_transfer(MCP2515_CMD_BITMOD);
+	spi_transfer(address);
+	spi_transfer(mask);
+	spi_transfer(value);
+}

@@ -42,6 +42,14 @@
 #define CANPnP_MSG_APP_ONLY     0b00000100 // Don't really need this because we aren't the bootloader
 #define CANPnP_MSG_MISSING_ARGS 0b00001000
 
+#define AVRPIN_DIR_OUTPUT 1
+#define AVRPIN_DIR_INPUT 0
+#define AVRPIN_HIGH 1
+#define AVRPIN_LOW 0
+#define AVRPIN_PULLUP_ENABLE 1
+#define AVRPIN_PULLUP_DISABLE 0
+
+
 //#ifndef NUM_CAN_FUNCTIONS
 //#define NUM_CAN_FUNCTIONS 0
 //#endif
@@ -91,6 +99,13 @@ private:
 	uint16_t _device_version;
 	void SendHeartbeat();
 	uint64_t _statusFlags;
+	// low-level SPI/register functions
+	AVRPin _CS;
+	AVRPin _PCINT;
+	void mcp2515_reset();
+	uint8_t mcp2515_readRegister(uint8_t address);
+	void mcp2515_writeRegister(uint8_t address, uint8_t value);
+	void mcp2515_modifyRegister(uint8_t address, uint8_t mask, uint8_t value);
 	// Default functions
 	static void GetStatus(CANPnP node, uint8_t len, uint64_t data);
 	static void Reset(CANPnP node, uint8_t len, uint64_t data);

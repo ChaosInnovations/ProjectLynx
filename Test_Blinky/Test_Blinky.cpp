@@ -24,7 +24,7 @@ int main() {
 	// Arduino bootloader uses UART. Disconnect so it can be reconnected in Serial.begin.
 	// Write our own init() when we start using CANPnP bootloader...
 	init();
-	ledPin.ApplyDirection(1);
+	ledPin.ApplyDirection(AVRPIN_DIR_OUTPUT);
 	Serial.begin(9600);
 	Serial.println("Start. Default mode set to flash");
 	Serial.print("Node UID:\t");

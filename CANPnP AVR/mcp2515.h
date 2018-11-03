@@ -1,0 +1,21 @@
+#ifndef _mcp2515_h
+#define _mcp2515_h
+
+
+#define MCP2515_CMD_WRITE  0x02
+#define MCP2515_CMD_READ   0x03
+#define MCP2515_CMD_BITMOD 0x05
+#define MCP2515_CMD_RESET  0x0C
+
+#define MCP2515_REG_CANCTRL 0x0F
+
+#define MCP2515_MASK_CANCTRL_MODE 0b11100000
+
+#define MCP2515_MODE_NORMAL   0b000 << 5
+#define MCP2515_MODE_SLEEP    0b001 << 5
+#define MCP2515_MODE_LOOPBACK 0b010 << 5
+#define MCP2515_MODE_LISTEN   0b011 << 5
+#define MCP2515_MODE_CONFIG   0b100 << 5
+
+
+#endif
