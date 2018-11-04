@@ -9,17 +9,46 @@
 #include "mcp2515.h"
 #include "CANPnP_AVR.h"
 
+AVRPin spi_pin_sck{ DDRB, PORTB, PINB, PORTB5 };
+AVRPin spi_pin_mosi{ DDRB, PORTB, PINB, PORTB3 };
+
 // SPI helper functions
 // ====================
 void spi_begin() {
-	// init pins
 	// set timing and mode
+	// SPCR
+	// 0        : Interrupt disabled
+	//  1       : Enable SPI
+	//   0      : Data order: MSB
+	//    1     : Master mode
+	//     0    : SCK low on idle
+	//      0   : Sample on trailing edge of SCK
+	//       x  : SPR1 (Clock rate select)
+	//        x : SPR0 (Clock rate select)
+	// SPSR
+	//        x : SPI2X (SPI double speed mode)
+
+	// SPI2X | SPR1  | SPR0  | SCK frequency
+	//   0   |   0   |   0   | Fosc/4
+	//   0   |   0   |   1   | Fosc/16
+	//   0   |   1   |   0   | Fosc/64
+	//   0   |   1   |   1   | Fosc/128
+	//   1   |   0   |   0   | Fosc/2
+	//   1   |   0   |   1   | Fosc/8
+	//   1   |   1   |   0   | Fosc/32
+	//   1   |   1   |   1   | Fosc/64
+
+
+	SPCR = (1 << SPE) | (1 << MSTR); // clock speed fine for now (?)
+
+	// init pins. Do this after to prevent accidental SCK pulses
+	spi_pin_sck.ApplyDirection(AVRPIN_DIR_OUTPUT);
+	spi_pin_mosi.ApplyDirection(AVRPIN_DIR_OUTPUT);
 }
 
 uint8_t spi_transfer(uint8_t value) {
 	SPDR = value;
-	//insert nop here
-	while (0/*not sent yet*/) {}
+	while (!(SPSR & (1 << SPIF)));
 	return SPDR;
 }
 
